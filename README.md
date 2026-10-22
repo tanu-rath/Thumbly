@@ -113,3 +113,34 @@ Thumbly/
 ## License
 
 This project is open source and available for personal and educational use.
+## Deployment (Vercel)
+
+Thumbly is deployed as two separate Vercel projects from the same GitHub repo.
+
+### Client (`Client/`)
+1. Import the repo in Vercel and set **Root Directory** to `Client`.
+2. Framework preset: **Vite**.
+3. Add the environment variable:
+   - `VITE_BASE_URL` = your server URL (no trailing slash)
+4. `Client/vercel.json` rewrites all routes to `/` so React Router works on refresh.
+
+### Server (`server/`)
+1. Import the repo again as a second project and set **Root Directory** to `server`.
+2. `server/vercel.json` runs `server.ts` as a serverless function.
+3. Add these environment variables:
+   ~~~
+   MONGODB_URI=
+   SESSION_SECRET=
+   NODE_ENV=production
+   CLOUDFLARE_ACCOUNT_ID=
+   CLOUDFLARE_API_TOKEN=
+   CLOUDINARY_CLOUD_NAME=
+   CLOUDINARY_API_KEY=
+   CLOUDINARY_API_SECRET=
+   CLIENT_URLS=            # optional, extra allowed frontend origins
+   ~~~
+
+### Notes
+- Environment variables only apply to new deployments, so **redeploy** after changing them.
+- Cookies use `sameSite: 'none'` and `secure` in production because the client and API are on different Vercel domains.
+- Pushing to `main` triggers an automatic deployment of both projects.
