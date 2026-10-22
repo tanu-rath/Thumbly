@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Thumbnail from '../models/Thumbnail.js';
 
 // Controllers to get All User Thumbnails
@@ -20,7 +21,14 @@ export const getThumbnailbyId = async (req: Request, res: Response) => {
         const { userId } = req.session;
         const { id } = req.params;
 
+        if (!mongoose.Types.ObjectId.isValid(id as string)) {
+            return res.status(400).json({ message: 'Invalid thumbnail id' });
+        }
+
         const thumbnail = await Thumbnail.findOne({ userId, _id: id });
+        if (!thumbnail) {
+            return res.status(404).json({ message: 'Thumbnail not found' });
+        }
         res.json({ thumbnail });
     } catch (error: any) {
         console.log(error);

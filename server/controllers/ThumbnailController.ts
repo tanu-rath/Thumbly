@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Thumbnail from '../models/Thumbnail.js';
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from '../configs/cloudinary.js';
 
 const stylePrompts = {
     'Bold & Graphic':
@@ -34,10 +34,19 @@ const colorSchemeDescriptions = {
         'soft pastel colors, low saturation, gentle tones, calm and friendly aesthetic',
 };
 
+const aspectRatioHints = {
+    '16:9': 'wide landscape 16:9 composition (YouTube thumbnail)',
+    '1:1': 'square 1:1 composition',
+    '9:16': 'tall vertical 9:16 composition (mobile / shorts)',
+};
+
 export const generateThumbnail = async (
     req: Request,
     res: Response
 ) => {
+    // Declared outside try so the catch block can clean up a half-created record
+    let thumbnail: any = null;
+
     try {
         const { userId } = req.session;
 
@@ -50,8 +59,22 @@ export const generateThumbnail = async (
             text_overlay,
         } = req.body;
 
+        // Validate input before spending an AI call
+        if (typeof title !== 'string' || !title.trim()) {
+            return res.status(400).json({ message: 'Title is required' });
+        }
+        if (title.length > 100) {
+            return res.status(400).json({ message: 'Title must be 100 characters or less' });
+        }
+        if (!style || !(style in stylePrompts)) {
+            return res.status(400).json({ message: 'Invalid thumbnail style' });
+        }
+        if (user_prompt && (typeof user_prompt !== 'string' || user_prompt.length > 500)) {
+            return res.status(400).json({ message: 'Additional prompt must be 500 characters or less' });
+        }
+
         // Create the thumbnail record
-        const thumbnail = await Thumbnail.create({
+        thumbnail = await Thumbnail.create({
             userId,
             title,
             prompt_used: user_prompt,
@@ -80,6 +103,14 @@ export const generateThumbnail = async (
 
         if (user_prompt) {
             prompt += ` Additional details: ${user_prompt}.`;
+        }
+
+        if (aspect_ratio && aspect_ratio in aspectRatioHints) {
+            prompt += ` Use a ${aspectRatioHints[aspect_ratio as keyof typeof aspectRatioHints]}.`;
+        }
+
+        if (text_overlay) {
+            prompt += ` Include large, bold, readable text that says "${title}".`;
         }
 
         prompt +=
@@ -158,6 +189,11 @@ export const generateThumbnail = async (
         });
     } catch (error: any) {
         console.error('Thumbnail generation error:', error);
+
+        // Don't leave a thumbnail stuck on "Generating..." forever
+        if (thumbnail) {
+            await Thumbnail.findByIdAndDelete(thumbnail._id).catch(() => {});
+        }
 
         res.status(500).json({
             message: error.message || 'Failed to generate thumbnail',

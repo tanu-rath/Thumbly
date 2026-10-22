@@ -35,8 +35,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 setIsLoggedIn(true);
             }
             toast.success(data.message);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
+            toast.error(error?.response?.data?.message || error.message);
         }
     };
 
@@ -48,8 +49,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 setIsLoggedIn(true);
             }
             toast.success(data.message);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
+            toast.error(error?.response?.data?.message || error.message);
         }
     };
 
@@ -59,8 +61,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(null);
             setIsLoggedIn(false);
             toast.success(data.message);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
+            toast.error(error?.response?.data?.message || error.message);
         }
     };
 

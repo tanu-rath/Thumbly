@@ -68,11 +68,11 @@ const Login = () => {
                             {' '}
                             <rect width='18' height='11' x='3' y='11' rx='2' ry='2' /> <path d='M7 11V7a5 5 0 0 1 10 0v4' />{' '}
                         </svg>
-                        <input type='password' name='password' placeholder='Password' className='w-full bg-transparent text-white placeholder-white/60 border-none outline-none' value={formData.password} onChange={handleChange} required />
+                        <input type='password' name='password' placeholder='Password' className='w-full bg-transparent text-white placeholder-white/60 border-none outline-none' value={formData.password} onChange={handleChange} minLength={6} required />
                     </div>
 
                     <div className='mt-4 text-left'>
-                        <button className='text-sm text-yellow-400 hover:underline'>Forget password?</button>
+                        <button type='button' className='text-sm text-yellow-400 hover:underline'>Forget password?</button>
                     </div>
 
                     <button type='submit' className='mt-2 w-full h-11 rounded-full text-white bg-yellow-600 hover:bg-yellow-500 transition '>

@@ -123,7 +123,7 @@ const MyGeneration = () => {
 
                                         <DownloadIcon onClick={() => handleDownlaod(thumb.image_url!)} className='size-6 bg-noir/50 p-1 rounded hover:bg-yellow-600 transition-all' />
 
-                                        <Link target='_blank' to={`/preview?thumbnail_url=${thumb.image_url}&title=${thumb.title}`}>
+                                        <Link target='_blank' to={`/preview?thumbnail_url=${encodeURIComponent(thumb.image_url || '')}&title=${encodeURIComponent(thumb.title)}`}>
                                             <ArrowUpRightIcon className='size-6 bg-noir/50 p-1 rounded hover:bg-yellow-600 transition-all' />
                                         </Link>
                                     </div>

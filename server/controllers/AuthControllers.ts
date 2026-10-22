@@ -7,6 +7,13 @@ export const registerUser = async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body;
 
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Name, email and password are required' });
+        }
+        if (typeof password !== 'string' || password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+
         // find user by email
         const user = await User.findOne({ email });
         if (user) {
@@ -43,6 +50,10 @@ export const loginUser = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
         // find user by email
         const user = await User.findOne({ email });
         if (!user) {
@@ -78,8 +89,8 @@ export const logoutUser = async (req: Request, res: Response) => {
             console.log(error);
             return res.status(500).json({ message: error.message });
         }
+        return res.json({ message: 'Logout successful' });
     });
-    return res.json({ message: 'Logout successful' });
 };
 
 // Controllers For User Verify
